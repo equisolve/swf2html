@@ -1,0 +1,616 @@
+<html>
+<head>
+<title>README for swf2html utility</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body bgcolor="#FFFFFF" text="#000000">
+<h1> README for Macromedia&nbsp;Flash Search&nbsp;Engine SDK&nbsp;1.0</h1>
+<p>&nbsp;
+</p>
+<h1>Contents of this readme file<a name="contents"></a></h1>
+<ul>
+  <li>
+    <a href="#overview" target="_self">Overview</a> 
+  </li>
+  <li>
+    <a href="#what_is_extracted" target="_self">What <code>swf2html</code> extracts 
+    from a SWF file</a> 
+  </li>
+  <li>
+    <a href="#sample_output" target="_self">Sample output</a> 
+  </li>
+  <li>
+    <a href="#command_line" target="_self">Command-line implementation</a> 
+  </li>
+  <li>
+    <a href="#library" target="_self">Linked library implementation</a> 
+  </li>
+  <li>
+    <a href="#build_notes" target="_self">Build notes</a> 
+  </li>
+</ul>
+<h1> Overview<a name="overview"></a> </h1>
+<p>
+  The Macromedia Flash Search Engine SDK 1.0 provides search engines with the 
+  means to search and index Macromedia Flash (SWF) movies. The <code>swf2html</code> 
+  utility used by the SDK extracts text and links from a Macromedia Flash SWF 
+  file, and outputs it to <code>stdout</code> or to an HTML document. When a search 
+  engine deploys this SDK, users can locate relevant Flash content when searching 
+  by keyword or file type.
+</p>
+<p>
+  The SDK includes the following: 
+</p>
+<ul>
+  <li>
+    <code>swf2html</code> executable files, for <a href="#command_line" target="_self">command-line 
+    implementation</a> 
+  </li>
+  <li>
+    <code>libswf2html</code> static libraries, for <a href="#library" target="_self">linked 
+    library implementation</a> 
+  </li>
+  <li>
+    source code 
+  </li>
+  <li>
+    a <a href="http://www.gzip.org/zlib" target="_blank">zlib decompression library</a> 
+    for decompressing Flash Player&nbsp;6 files that have been compressed (the 
+    zlib files are included in the swf2html.dsw project file) 
+  </li>
+</ul>
+<p>
+  The SDK supports SWF files created for Flash Player&#160;3, 4, 5&nbsp;and&nbsp;6, 
+  and can be run on Windows or Linux systems. All code in the SDK is written in 
+  the C++ language. 
+</p>
+<p>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</p>
+<h1> What <code>swf2html</code> extracts from a SWF file<a name="what_is_extracted"></a></h1>
+<P>
+  You can use <code>swf2html</code> to extract <a href="#links" target="_self">links</a>, 
+  <a href="#text" target="_self">text</a>, or both. By default, both links and 
+  text are extracted. 
+</P>
+<h2>Links<a name="links"></a></h2>
+<p>
+  By default, <code>swf2html</code> extracts links (URLs) from within ActionScript 
+  code that meet the following criteria: 
+</p>
+<ul>
+  <li>
+    the link is contained within single quotes (' ') or double quotes (&quot; 
+    &quot;), <em>and</em> 
+  </li>
+  <li>
+    the link prefix is HTTP, <em>and</em> 
+  </li>
+  <li> the link suffix is HTM, HTML, CFM, SWF, JPG, JPEG, GIF, MP3, or WAV</li>
+</ul>
+<P>
+  To specify different default prefixes and suffixes for links to be extracted, 
+  you can edit the swf2html.cpp file. You can also specify additional prefixes 
+  and suffixes to be extracted at run time if you use the <a href="#command_line" target="_self">Command-line 
+  implementation</a>. Note that <code>swf2html</code> is not case-sensitive. 
+</P>
+<P>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</P>
+<h2> Text<a name="text"></a> </h2>
+<P>
+  By default, <code>swf2html</code> extracts the following text: 
+</P>
+<ul>
+  <li>
+    text on stage in the current movie (dynamic text, static text, or input text 
+    that has an initial value assigned) 
+  </li>
+  <li>
+    text on stage in a movie that is called with <code>movieClip.attachMovie()</code> 
+  </li>
+</ul>
+<p>
+  When a text field on the stage contains plain text, <code>swf2html</code> outputs 
+  it as plain text, with the following characters converted into HTML entities: 
+</p>
+<TABLE borderColor=#000000 cellSpacing=0  border=1>
+  <TBODY>
+    <TR> 
+      <TD><CODE>Text character</CODE></TD>
+      <TD><CODE>HTML entity</CODE></TD>
+    </TR>
+    <TR> 
+      <TD><CODE>&lt;</CODE></TD>
+      <TD><CODE>&amp;lt;</CODE></TD>
+    </TR>
+    <TR> 
+      <TD><CODE>&gt;</CODE></TD>
+      <TD><CODE>&amp;gt;</CODE></TD>
+    </TR>
+    <TR> 
+      <TD><CODE>&amp;</CODE></TD>
+      <TD><CODE>&amp;amp;</CODE></TD>
+    </TR>
+    <TR> 
+      <TD><CODE>"</CODE></TD>
+      <TD><CODE>&amp;quot;</CODE></TD>
+    </TR>
+  </TBODY>
+</TABLE>
+<p>
+  When a text field on the stage contains HTML code, the initial text displayed 
+  in the text field is included as HTML in the output file. For example, the HTML 
+  text field "Text link to Macromedia (center)", displayed in purple, with a hyperlink 
+  to http://www.macromedia.com, might be extracted into the output file as follows: 
+</p>
+<PRE>
+  &lt;P ALIGN="CENTER"&gt;
+  &lt;FONT FACE="Tahoma" SIZE="24" COLOR="#990099"&gt;
+  &lt;A HREF="http://www.macromedia.com"&gt;Text link to Macromedia (center)&lt;/A&gt;
+  &lt;/FONT&gt;
+  &lt;/P&gt;</PRE>
+<p> Note that the prefix and suffix filters specified for links do not apply to 
+  text. That is, if a text field on the stage contains an HTML tag such as <code>&lt;A&nbsp;HREF=&quot;ftp://myFTPsite.com/mySubdir&quot;&gt;</code>, 
+  <code>swf2html</code> extracts this text even if FTP is not specified as a prefix 
+  type to be extracted. </p>
+<p>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</p>
+<h1>Sample output<a name="sample_output"></a></h1>
+<p>
+  The following samples show the output <code>swf2html</code> created for the 
+  Flash&nbsp;Player&nbsp;6 SWF file shown below. 
+</p>
+<p>
+  <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,29,0" width="640" height="290">
+    <param name="movie" value="stiletto-sample.swf">
+    <param name="quality" value="high">
+    <embed src="stiletto-sample.swf" quality="high" pluginspage="http://www.macromedia.com/go/getflashplayer" type="application/x-shockwave-flash" width="640" height="290"></embed></object>
+</p>
+<p>
+  Note: The character set of Flash Player&nbsp;6 and later SWF files is Unicode, 
+  encoded using UTF-8. When you output data from a Flash Player&nbsp;6 or later 
+  SWF file to an HTML file, the following META tag is added to the HTML output: 
+</p>
+<PRE>    &lt;meta http-equiv="content-type" content="text/html; charset=utf-8"&gt;</PRE>
+<p>
+  This META tag is not placed in the HTML output for Flash Player&nbsp;5 and earlier 
+  SWF files. For those files, the character set is either ISO-8859-1 or Shift-JIS. 
+</p>
+<h2> Default output</h2>
+<p>
+  &lt;html&gt; 
+  <br>
+  &lt;head&gt; 
+  <br>
+  &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt; 
+  <br>
+  &lt;title&gt;&lt;/title&gt; 
+  <br>
+  &lt;/head&gt; 
+  <br>
+  &lt;body&gt; 
+  <br>
+  &lt;p&gt;Links 
+  <br>
+  &lt;/p&gt; 
+  <br>
+  &lt;a href=&quot;http://www.macromedia.com&quot;&gt;http://www.macromedia.com&lt;/a&gt; 
+  <br>
+  &lt;p&gt;Contact Us 
+  <br>
+  &lt;/p&gt; 
+  <br>
+  &lt;a href=&quot;http://www.macromedia.com&quot;&gt;http://www.macromedia.com&lt;/a&gt; 
+  <br>
+  &lt;p&gt;Sweepstakes 
+  <br>
+  &lt;/p&gt; 
+  <br>
+  &lt;a href=&quot;http://www.macromedia.com&quot;&gt;http://www.macromedia.com&lt;/a&gt; 
+  <br>
+  &lt;p&gt;The End of Compromise 
+</p>
+<p>
+  The Stiletto answers questions no one dared to ask. Can you make a performance 
+  electric car? Can you make a luxury car affordable? Can you make a small car 
+  safe? Can I drive from LA to Vegas in an electric car? 
+</p>
+<p>
+  Z.E.V. has an answer: Yes.&lt;/p&gt; 
+  <br>
+  &lt;/body&gt; 
+  <br>
+  &lt;/html&gt; 
+</p>
+<h2> Links-only output </h2>
+<p>
+  &lt;html&gt; 
+  <br>
+  &lt;head&gt; 
+  <br>
+  &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt; 
+  <br>
+  &lt;title&gt;&lt;/title&gt; 
+  <br>
+  &lt;/head&gt; 
+  <br>
+  &lt;body&gt; 
+  <br>
+  &lt;a href=&quot;http://www.macromedia.com&quot;&gt;http://www.macromedia.com&lt;/a&gt; 
+  <br>
+  &lt;a href=&quot;http://www.macromedia.com&quot;&gt;http://www.macromedia.com&lt;/a&gt; 
+  <br>
+  &lt;a href=&quot;http://www.macromedia.com&quot;&gt;http://www.macromedia.com&lt;/a&gt; 
+  <br>
+  &lt;/body&gt; 
+  <br>
+  &lt;/html&gt; 
+</p>
+<h2> Text-only output </h2>
+<p>
+  &lt;html&gt; 
+  <br>
+  &lt;head&gt; 
+  <br>
+  &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=utf-8&quot;&gt; 
+  <br>
+  &lt;title&gt;&lt;/title&gt; 
+  <br>
+  &lt;/head&gt; 
+  <br>
+  &lt;body&gt; 
+  <br>
+  &lt;p&gt;Links 
+  <br>
+  &lt;/p&gt; 
+  <br>
+  &lt;p&gt;Contact Us 
+  <br>
+  &lt;/p&gt; 
+  <br>
+  &lt;p&gt;Sweepstakes 
+  <br>
+  &lt;/p&gt; 
+  <br>
+  &lt;p&gt;The End of Compromise 
+</p>
+<p>
+  The Stiletto answers questions no one dared to ask. Can you make a performance 
+  electric car? Can you make a luxury car affordable? Can you make a small car 
+  safe? Can I drive from LA to Vegas in an electric car? 
+</p>
+<p>
+  Z.E.V. has an answer: Yes.&lt;/p&gt; 
+  <br>
+  &lt;/body&gt; 
+  <br>
+  &lt;/html&gt; 
+</p>
+<p>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</p>
+<h1>Command-line implementation<a name="command_line" id="command_line"></a></h1>
+<h2> Syntax </h2>
+<p>
+  <code>swf2html [-l] [-t] [-o outputFile] [-p prefixes] [-s suffixes] inputFile</code> 
+</p>
+<blockquote> 
+  <p>
+    <code>-l</code> extracts links only 
+    <br>
+    <code>-t</code> extracts text only 
+    <br>
+    <code>-o</code> specifies a filename for the output 
+    <br>
+    <code>-p</code> specifies a prefixes filter string in the form <code>&quot;pre1|pre2&quot;</code> 
+    <br>
+    <code>-s</code> specifies a suffixes filter string in the form <code>&quot;suf1|suf2&quot;</code> 
+  </p>
+</blockquote>
+<P>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</P>
+<h2> Notes </h2>
+Specifying both <code>-l</code> and <code>-t</code> has the same effect as specifying 
+neither; that is, the default behavior of extracting both links and text will 
+take place. 
+<p>
+  Text on the stage is not parsed for links. That is, if a textbox on the stage 
+  contains the text &quot;http://www.somesite.com&quot;, it is <em>not</em> extracted 
+  if you specify <code>-l</code>, and it <em>is</em> extracted if you specify 
+  <code>-t</code>. 
+</p>
+<P>
+  If you omit <code>outputFile</code>, data is extracted to <code>stdout</code>. 
+  If you specify <code>outputFile</code>, include the .htm or .html suffix. (A 
+  suffix is not appended to <code>outputFile</code> automatically.) 
+</P>
+<p>
+  If you specify prefixes or suffixes on the command line, these link types will 
+  be extracted in addition to (not instead of) the default types listed in swf2html.cpp. 
+</p>
+<P>
+  To use <code>stdin</code> as the input source, use <code>-</code> as inputFile. 
+  This usage assumes that you are calling <code>swf2html</code> from within a 
+  program, and that you have previously passed to <code>stdin</code> the SWF data 
+  you want to parse. 
+</P>
+<P>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</P>
+<h2> Sample implementations </h2>
+<ul>
+  <li>
+    To extract text and default links from input.swf, outputting to stdout: 
+  </li>
+  <BR>
+  <pre>     swf2html input.swf</pre>
+  <li>
+    To extract text and default links from input.swf, outputting to output.html: 
+  </li>
+  <BR>
+  <pre>     swf2html -o output.html input.swf</pre>
+  <li>
+    To extract text, default links, and links to ftp sites, .txt files, and .js 
+    files from input.swf, outputting to output.html: 
+  </li>
+  <BR>
+  <pre>     swf2html -o output.html -p &quot;ftp&quot; -s &quot;txt|js&quot; input.swf</pre>
+  <li>
+    To extract only text (no links) from input.swf, outputting to output.html: 
+  </li>
+  <BR>
+  <pre>     swf2html -t -o output.html input.swf</pre>
+  <li>
+    To extract text and default links from stdin, outputting to stdout: 
+  </li>
+  <BR>
+  <pre>     swf2html -</pre>
+</ul>
+<P>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</P>
+<h1>Linked library implementation<a name="library"></a></h1>
+<P>
+  The <CODE>swf2html</CODE> command-line utility uses the <CODE>libswf2html</CODE> 
+  library to perform its SWF-to-HTML conversion. This library is provided, so 
+  you can link it into an application to provide SWF-to-HTML conversion. 
+</P>
+<ul>
+  <li>
+    On Windows, the binary <CODE>libswf2html.lib</CODE> is provided, and you can 
+    use the project file <CODE>libswf2html.dsp</CODE> to build the library. 
+  </li>
+  <li>
+    On Linux, the binary <CODE>libswf2html.a</CODE> is provided, and the provided 
+    <CODE>Makefile</CODE> will build the library. The STL <CODE>map</CODE> and 
+    <CODE>string</CODE> classes are used, so you must also link <CODE>libstdc++</CODE> 
+    into the target application. 
+  </li>
+</ul>
+<P>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</P>
+<h2 class=subHeading><code>libswf2html</code> API</h2>
+<P>
+  The <code>libswf2html</code> library exposes an API that can be used to perform 
+  SWF-to-HTML conversion. For portability, the following data types are defined 
+  in <CODE>swf2html.h</CODE>: 
+</P>
+<ul>
+  <li>
+    <CODE>swf_U8</CODE>: unsigned 8-bit integer 
+  </li>
+  <li>
+    <CODE>swf_U16</CODE>: unsigned 16-bit integer 
+  </li>
+  <li>
+    <CODE>swf_U32</CODE>: unsigned 32-bit integer 
+  </li>
+  <li>
+    <CODE>swf_S8</CODE>: signed 8-bit integer 
+  </li>
+  <li>
+    <CODE>swf_S16</CODE>: signed 16-bit integer 
+  </li>
+  <li>
+    <CODE>swf_S32</CODE>: signed 32-bit integer 
+  </li>
+</ul>
+<P>
+  There are two C++ classes in this API, <CODE> <a href="#Swf2HtmlConverter" target="_self">Swf2HtmlConverter</a></CODE> 
+  and <CODE><a href="#Swf2HtmlConverterStdio" target="_self">Swf2HtmlConverterStdio</a>.</CODE> 
+</P>
+<h3 class=subHeading><code>class Swf2HtmlConverter</code><a name="Swf2HtmlConverter"></a> 
+</h3>
+<P>
+  The <CODE>Swf2HtmlConverter</CODE> class is the core class that performs SWF-to-HTML 
+  conversion. Because it is a virtual base class, it must be subclassed to be 
+  used. To use the <code>Swf2HtmlConverter</code> class, use <CODE>#include "swf2html.h"</CODE> 
+  and subclass the following methods: 
+</p>
+<ul>
+  <li>
+    Write a byte of data to the HTML output stream: 
+  </li>
+  <BR>
+  <PRE>     virtual void PutByte(swf_U8 ch) = 0;</PRE>
+  <li>
+    Write a null-terminated string to the HTML output steam: 
+  </li>
+  <BR>
+  <pre>     virtual void PutString(const char *str) = 0;</pre>
+  <li>
+    Read up to count bytes from the SWF input stream into buffer and return the 
+    number of bytes read: 
+  </li>
+  <BR>
+  <pre>     virtual swf_S32 ReadInput(void *buffer, swf_S32 count) = 0;</pre>
+  <li>
+    Display the specified string as an error message: 
+  </li>
+  <BR>
+  <PRE>     virtual void DisplayError(const char *str) = 0;</PRE>
+</ul>
+<P> Once these routines are overridden, the <CODE>ConvertSwf2Html</CODE> method 
+  may be invoked to perform the SWF-to-HTML conversion. </P>
+<P>The public functions offer read/write access to some flags and variables, as 
+  well as the entry point for starting the conversion process. See <a href="#what_is_extracted" target="_self">above</a> 
+  for information about prefix and suffix filters and the distinction between 
+  links and text. </P>
+<ul>
+  <li>Entry point to start reading the input data and to parse it into text and 
+    links, based on the overridden functions:</li>
+  <br>
+  <blockquote> 
+    <pre>bool ConvertSwf2Html();</pre>
+  </blockquote>
+  <li>Returns a boolean indicating whether the converter is set to output links:</li>
+  <br>
+  <blockquote> 
+    <pre>bool GetDumpLinks() const;
+</pre>
+  </blockquote>
+  <li>Sets the flag that indicates whether the converter should output links:</li>
+  <br>
+  <blockquote> 
+    <pre>void SetDumpLinks(bool dumpLinks);</pre>
+  </blockquote>
+  <li>Returns a boolean indicating whether the converter is set to output text:</li>
+  <br>
+  <blockquote> 
+    <pre>bool GetDumpText() const;</pre>
+  </blockquote>
+  <li>Sets the flag that indicates whether the converter should output text:</li>
+  <br>
+  <blockquote> 
+    <pre>void SetDumpText(bool dumpText);</pre>
+  </blockquote>
+  <li>Returns the string that contains the prefixes of links to be extracted:</li>
+  <br>
+  <blockquote> 
+    <pre>const char *GetPrefixFilters() const;</pre>
+  </blockquote>
+  <li>Sets the string that contains the prefixes of links to be extracted:</li>
+  <br>
+  <blockquote> 
+    <pre>void SetPrefixFilters(const char *filters);</pre>
+  </blockquote>
+  <li>Returns the string that contains the suffixes of links to be extracted:</li>
+  <br>
+  <blockquote> 
+    <pre>const char *GetSuffixFilters() const;</pre>
+  </blockquote>
+  <li>Sets the string that contains the suffixes of links to be extracted:</li>
+  <br>
+  <blockquote> 
+    <pre>void SetSuffixFilters(const char *filters);</pre>
+  </blockquote>
+</ul>
+<PRE>class Swf2HtmlConverter  
+{
+public:
+    Swf2HtmlConverter();
+    ~Swf2HtmlConverter();
+
+	bool ConvertSwf2Html();
+
+	bool GetDumpLinks() const;
+	void SetDumpLinks(bool dumpLinks);
+	bool GetDumpText() const;
+	void SetDumpText(bool dumpText);
+
+	const char *GetPrefixFilters() const;
+	void SetPrefixFilters(const char *filters);
+	const char *GetSuffixFilters() const;
+	void SetSuffixFilters(const char *filters);
+	
+protected:
+	virtual void PutByte(swf_U8 ch) = 0;
+	virtual void PutString(const char *str) = 0;
+	virtual swf_S32 ReadInput(void *buffer, swf_S32 count) = 0;
+	virtual void DisplayError(const char *str) = 0;
+
+private:
+	<I>... internal swf2html code ...</I>
+};
+</PRE>
+<P>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</P>
+<h3 class=subHeading> <code>class Swf2HtmlConverterStdio</code><a name="Swf2HtmlConverterStdio"></a> 
+</h3>
+<P>
+  The <CODE>Swf2HtmlConverterStdio</CODE> class is a subclass of <CODE>Swf2HtmlConverter</CODE>. 
+  To use the <CODE>Swf2HtmlConverter</CODE> class, use <CODE>#include "swf2html_stdio.h"</CODE> 
+</P>
+<P>
+  The following example demonstrates how <code>Swf2HtmlConverter</code> can be 
+  subclassed, and also provides for two common SWF-to-HTML conversion scenarios: 
+</P>
+<ul>
+  <li>
+    Read the SWF from a stdio stream and write the HTML to another stdio stream. 
+    <CODE>true</CODE> is returned on success, <CODE>false </CODE>is returned on 
+    failure. 
+  </li>
+  <BR>
+  <PRE>     bool ConvertSwf2Html(FILE *inputFile, FILE *outputFile);</PRE>
+  <LI>
+    Read the SWF from a named input file and write the HTML to a named output 
+    file. <CODE>true</CODE> is returned on success, <CODE>false </CODE>is returned 
+    on failure. 
+  </LI>
+  <BR>
+  <PRE>     bool ConvertSwf2Html(const char *inputFile, const char *outputFile);</PRE>
+</ul>
+<PRE>class Swf2HtmlConverterStdio : public Swf2HtmlConverter
+{
+public:
+    Swf2HtmlConverter();
+    ~Swf2HtmlConverter();
+
+	bool ConvertSwf2Html(FILE *inputFile,
+					     FILE *outputFile);
+	bool ConvertSwf2Html(const char *inputFile,
+						 const char *outputFile);
+
+protected:
+	virtual void PutByte(swf_U8 ch);
+	virtual void PutString(const char *str);
+	virtual swf_S32 ReadInput(void *buffer, swf_S32 count);
+	virtual void DisplayError(const char *str);
+
+private:
+	<I>... internal swf2html code ...</I>
+};
+</PRE>
+<em><a href="#" target="_self">Back to contents</a></em> 
+<h1> Build notes<a name="build_notes"></a></h1>
+<P>
+  <CODE>swf2html</CODE> has been built on Windows 2000 using MSDev v. 6.0 and 
+  on RedHat Linux 7.0 using gcc version egcs 2.91.66 (egcs-1.1.2 release). The 
+  project file and Makefile are included. 
+</P>
+<P>
+  <CODE>swf2html</CODE> is C++ source code; a C++ compiler is required to build 
+  it. 
+</P>
+<P>
+  Platform-dependent defines and includes should be placed in the <CODE>platformbuild.h</CODE> 
+  file, which every cpp source file includes. 
+</P>
+<P>
+  Defines and includes that are available to all platforms should be included 
+  in the <CODE>globals.h</CODE> file, which the header files include. 
+</P>
+<P>
+  The version of zlib used is zlib-1.1.4. 
+</P>
+<p>
+  <em><a href="#" target="_self">Back to contents</a></em> 
+</p>
+</body>
+</html>
