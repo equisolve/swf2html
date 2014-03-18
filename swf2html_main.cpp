@@ -14,16 +14,16 @@ permission of Macromedia, Inc.
 
 */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <cstdlib>
 
-#include <zlib.h>
+#include "zlib.h"
 #include "stags.h"
 #include "swf2html_stdio.h"
 
 #define BUILD_NUMBER 11
-using namespace std;
+
 void usage( void )
 {
 	fprintf(stderr, "swf2html: Convert SWF to HTML [build %d]\n", BUILD_NUMBER);
