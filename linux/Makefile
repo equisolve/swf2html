@@ -19,7 +19,7 @@ RANLIB := ranlib
 
 DEFS := -DLINUX
 INCS :=
-LIBS := -lm -lz -lstdc++ -L. -lswf2html
+LIBS := -lm -lstdc++ -L. -lswf2html -lz
 
 endif
 
